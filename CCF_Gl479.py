@@ -61,6 +61,7 @@ for n in range(N_start, N_end):
     hdulist     = fits.open(FILE[n])
     bc          = hdulist[0].header['HIERARCH ESO DRS BERV'] / 1000             # barycentric RV, originally in m/s
     v0          = hdulist[0].header['CRVAL1'] - bc                              # velocity on the left (N_starting point)
+    # v0          = hdulist[0].header['CRVAL1']  
     MJD[n]      = hdulist[0].header['MJD-OBS']
     
     CCF         = hdulist[0].data                                               # ccf 2-d array
@@ -74,13 +75,15 @@ for n in range(N_start, N_end):
 
     f           = CubicSpline(v, ccf / ccf.max())
     y           = f(x)
-    popt, pcov  = curve_fit( gaussian, x, y, [-1.7, v_min, 2.5, 1])
+    popt, pcov  = curve_fit( gaussian, x, y, [-1.76, -5.467, 2.5, 1])
 #    print((popt[1] - v_min)*1000)
+    RV_g[n]     = popt[1]
     x_new       = x
     y_new       = (y - popt[3]) / popt[0]
-    plt.plot(x_new, y_new, '-')
+    # plt.plot(x_new, y_new, '-')
     
     writefile   = '../ccf_dat/ccf' + str(n) + '.dat'
     np.savetxt(writefile, y_new)
-    
+
+plt.plot(MJD, (RV_g - np.mean(RV_g))*1000, '.')    
 plt.show()

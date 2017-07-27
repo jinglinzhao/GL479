@@ -47,7 +47,7 @@ for n = 1:N_FILE
     i           = n - 1;
     filename    = ['../ccf_dat/ccf', num2str(i), '.dat'];
     A           = importdata(filename);
-    f           = fit( v, A, 'a*exp(-((x-b)/c)^2)+d', 'StartPoint', [-1.7, -5.5, 2.5, 1] );
+    f           = fit( v, A, 'a*exp(-((x-b)/c)^2)+d', 'StartPoint', [0.15, -5.47, 2.5, 0] );
     b           = f.b;  % shift
     % plot(v,A, v,f(v)) % test %
     RV_gauss(n) = b;    
