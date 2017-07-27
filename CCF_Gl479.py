@@ -45,7 +45,7 @@ n_file      = N_end - N_start
 MJD         = np.zeros(n_file)
 RV_g        = np.zeros(n_file)
 
-x           = np.arange(-9, -2, 0.1)                                # over sampling to 0.1 km/s [-10.2, -0.8]
+x           = np.arange(-10, -1+0.1, 0.1)                                # over sampling to 0.1 km/s [-10.2, -0.8]
 y           = np.zeros(len(x))
 
 plt.figure()
@@ -80,7 +80,7 @@ for n in range(N_start, N_end):
     y_new       = (y - popt[3]) / popt[0]
     plt.plot(x_new, y_new, '-')
     
-    writefile   = '../ccf' + str(n) + '.dat'
+    writefile   = '../ccf_dat/ccf' + str(n) + '.dat'
     np.savetxt(writefile, y_new)
     
 plt.show()

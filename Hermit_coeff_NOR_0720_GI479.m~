@@ -55,7 +55,7 @@ for n = 1:N_FILE
     for order = 0:ORDER
         temp                    = hermite_nor(order, v+5.5) * grid_size;
         % temp_rvc                = hermite_nor(order, v - b) * grid_size;
-        temp_rvc                = hermite_nor(order, v - VEL(n, 2)) * grid_size;
+        temp_rvc                = hermite_nor(order, v - b) * grid_size;
         coeff(order+1, n)       = sum(A .* temp);  
         coeff_rvc(order+1, n)   = sum(A .* temp_rvc); 
     end
@@ -83,17 +83,17 @@ for order = 0:ORDER
     [pks_rvc,locs_rvc] = findpeaks(pxx_rvc, f_rvc);            
     [pks_maxs_rvc, idx_maxs_rvc] = sort(pks_rvc, 'descend'); 
 
-    [pxx_v,f_v] = plomb(VEL(:,2), MJD - min(MJD), 0.1, 100, 'normalized');
+    [pxx_v,f_v] = plomb(RV_gauss, MJD - min(MJD), 0.1, 100, 'normalized');
     [pmax_v,lmax_v] = max(pxx_v);
     f0_v = f(lmax_v);
     
     h = figure;
         hold on
-%         if find(order==order_even)
-%             ylim([-10 10])
-%         else
-%             ylim([-14 22])
-%         end
+        if find(order==order_even)
+            ylim([-10 10])
+        else
+            ylim([-14 22])
+        end
         plot(f_v, pxx_v, 'k--')
         plot(f, pxx, 'r')
         plot(f_rvc, -pxx_rvc, 'b')
