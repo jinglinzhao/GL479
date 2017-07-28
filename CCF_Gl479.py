@@ -14,6 +14,7 @@ Created on Thu Jun  8 16:57:03 2017
 # Updates #
 ###########
 # bc = hdulist[0].header['HIERARCH ESO DRS BERV'] @26/07/17
+# Remove bc = hdulist[0].header['HIERARCH ESO DRS BERV']. @28/07/17
 
 #############################################
 
@@ -44,8 +45,9 @@ N_end       = N
 n_file      = N_end - N_start
 MJD         = np.zeros(n_file)
 RV_g        = np.zeros(n_file)
+RV_HARPS    = np.zeros(n_file)
 
-x           = np.arange(-10, -1+0.1, 0.1)                                # over sampling to 0.1 km/s [-10.2, -0.8]
+x           = np.arange(-9, -2+0.1, 0.1)                                # over sampling to 0.1 km/s [-10.2, -0.8]
 y           = np.zeros(len(x))
 
 plt.figure()
@@ -59,9 +61,8 @@ for n in range(N_start, N_end):
 
     
     hdulist     = fits.open(FILE[n])
-    bc          = hdulist[0].header['HIERARCH ESO DRS BERV'] / 1000             # barycentric RV, originally in m/s
-    v0          = hdulist[0].header['CRVAL1'] - bc                              # velocity on the left (N_starting point)
-    # v0          = hdulist[0].header['CRVAL1']  
+    v0          = hdulist[0].header['CRVAL1']                               # velocity on the left (N_starting point)
+    RV_HARPS[n] = hdulist[0].header['HIERARCH ESO DRS CCF RVC']                 # Baryc RV (drift corrected) (km/s)
     MJD[n]      = hdulist[0].header['MJD-OBS']
     
     CCF         = hdulist[0].data                                               # ccf 2-d array
@@ -75,7 +76,7 @@ for n in range(N_start, N_end):
 
     f           = CubicSpline(v, ccf / ccf.max())
     y           = f(x)
-    popt, pcov  = curve_fit( gaussian, x, y, [-1.76, -5.467, 2.5, 1])
+    popt, pcov  = curve_fit( gaussian, x, y, [-1.76, RV_HARPS[n], 2.5, 1])
 #    print((popt[1] - v_min)*1000)
     RV_g[n]     = popt[1]
     x_new       = x
@@ -85,5 +86,6 @@ for n in range(N_start, N_end):
     writefile   = '../ccf_dat/ccf' + str(n) + '.dat'
     np.savetxt(writefile, y_new)
 
-plt.plot(MJD, (RV_g - np.mean(RV_g))*1000, '.')    
+plt.plot(MJD, (RV_g - np.mean(RV_g))*1000, '.', MJD, (RV_HARPS - np.mean(RV_HARPS)) * 1000, '+')
+# plt.plot( RV_g *1000, RV_HARPS * 1000, '+')
 plt.show()
