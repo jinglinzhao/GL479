@@ -37,6 +37,7 @@ grid_size       = 0.1;
 v               = (-10 : grid_size : -1)';                                % km/s
 VEL             = importdata('../GL479_vels.txt');
 cd ../code
+
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculate Coefficient %
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,9 +54,9 @@ for n = 1:N_FILE
     RV_gauss(n) = b;    
 
     for order = 0:ORDER
-        temp                    = hermite_nor(order, v+5.5) * grid_size;
+        temp                    = hermite_nor(order, v+5.47) * grid_size;
         % temp_rvc                = hermite_nor(order, v - b) * grid_size;
-        temp_rvc                = hermite_nor(order, v - VEL(n, 2)) * grid_size;
+        temp_rvc                = hermite_nor(order, v + 5.4577128 - VEL(n, 2)) * grid_size;
         coeff(order+1, n)       = sum(A .* temp);  
         coeff_rvc(order+1, n)   = sum(A .* temp_rvc); 
     end
@@ -64,16 +65,18 @@ for n = 1:N_FILE
 end
 close(h)  
 
+% plot(MJD, (RV_gauss-mean(RV_gauss))*1000, '+')
+
 cd ..
 
 for order = 0:ORDER
     
-    [pxx,f] = plomb(coeff(order+1, :), MJD - min(MJD), 0.1, 100, 'normalized');
+    [pxx,f] = plomb(coeff(order+1, :), MJD - min(MJD), 0.25, 100, 'normalized');
     [pmax,lmax] = max(pxx);
     f0 = f(lmax);
     disp(['T_planet: ', num2str(1/f0)]);
 
-    [pxx_rvc,f_rvc] = plomb(coeff_rvc(order+1, :), MJD - min(MJD), 0.1, 100, 'normalized');
+    [pxx_rvc,f_rvc] = plomb(coeff_rvc(order+1, :), MJD - min(MJD), 0.25, 100, 'normalized');
     [pmax_rvc,lmax_rvc] = max(pxx_rvc);
     f0_rvc = f_rvc(lmax_rvc);
     disp(['T_activity: ', num2str(1/f0_rvc)]);
@@ -84,6 +87,7 @@ for order = 0:ORDER
     [pks_maxs_rvc, idx_maxs_rvc] = sort(pks_rvc, 'descend'); 
 
     [pxx_v,f_v] = plomb(VEL(:,2), MJD - min(MJD), 0.1, 100, 'normalized');
+    % [pxx_v,f_v] = plomb(RV_gauss, MJD - min(MJD), 0.25, 100, 'normalized');
     [pmax_v,lmax_v] = max(pxx_v);
     f0_v = f(lmax_v);
     
